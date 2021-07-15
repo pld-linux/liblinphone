@@ -16,6 +16,7 @@ Group:		Applications/Communications
 #Source0Download: https://gitlab.linphone.org/BC/public/liblinphone/-/tags
 Source0:	https://gitlab.linphone.org/BC/public/liblinphone/-/archive/%{version}/%{name}-%{version}.tar.bz2
 # Source0-md5:	eb36559e436cd785aefec066e65ffc19
+Patch0:		%{name}-c++-static.patch
 URL:		http://www.linphone.org/technical-corner/liblinphone
 # base and tester components
 BuildRequires:	bctoolbox-devel >= 0.0.3
@@ -193,6 +194,7 @@ pochodzącego z GNOME.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 install -d builddir
@@ -229,6 +231,36 @@ install -d $RPM_BUILD_ROOT%{_mandir}/{man1,cs/man1}
 cp -p share/C/{linphonec,linphonecsh}.1 $RPM_BUILD_ROOT%{_mandir}/man1
 cp -p share/cs/linphonec.1 $RPM_BUILD_ROOT%{_mandir}/cs/man1
 
+# missing in 4.x
+install -d $RPM_BUILD_ROOT%{_pkgconfigdir}
+cat >>$RPM_BUILD_ROOT%{_pkgconfigdir}/linphone.pc <<'EOF'
+prefix=%{_prefix}
+exec_prefix=%{_prefix}
+libdir=%{_libdir}
+includedir=%{_includedir}
+
+Name: liblinphone
+Requires: mediastreamer ortp bctoolbox
+Description: All in one linphone libs.
+Version: %{version}
+Libs: -L${libdir} -llinphone
+Cflags: -I${includedir}
+EOF
+
+cat >>$RPM_BUILD_ROOT%{_pkgconfigdir}/linphone++.pc <<'EOF'
+prefix=%{_prefix}
+exec_prefix=%{_prefix}
+libdir=%{_libdir}
+includedir=%{_includedir}
+
+Name: liblinphone++
+Requires.private: linphone bctoolbox belle-sip
+Description: C++ wrapper for linphone libraries.
+Version: %{version}
+Libs: -L${libdir} -llinphone++
+Cflags: -I${includedir}
+EOF
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -255,7 +287,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/liblinphone.so
 %{_includedir}/linphone
-#%{_pkgconfigdir}/linphone.pc
+%{_pkgconfigdir}/linphone.pc
 %dir %{_datadir}/Linphone
 %{_datadir}/Linphone/cmake
 
@@ -277,14 +309,14 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/liblinphone++.so
 %{_includedir}/linphone++
-#%{_pkgconfigdir}/linphone++.pc
+%{_pkgconfigdir}/linphone++.pc
 %dir %{_datadir}/LinphoneCxx
 %{_datadir}/LinphoneCxx/cmake
 
 %if %{with static_libs}
-#%files c++-static
-#%defattr(644,root,root,755)
-#%{_libdir}/liblinphone++.a
+%files c++-static
+%defattr(644,root,root,755)
+%{_libdir}/liblinphone++.a
 %endif
 
 %files c++-apidocs
