@@ -9,30 +9,37 @@
 Summary:	Linphone Internet Phone libraries
 Summary(pl.UTF-8):	Biblioteki telefonu internetowego Linphone
 Name:		liblinphone
-Version:	4.5.24
+# note: 5.2.x is AGPL-licensed; see DEVEL-5.2 branch
+Version:	5.1.73
 Release:	1
 License:	GPL v3+ or proprietary
 Group:		Applications/Communications
 #Source0Download: https://gitlab.linphone.org/BC/public/liblinphone/-/tags
 Source0:	https://gitlab.linphone.org/BC/public/liblinphone/-/archive/%{version}/%{name}-%{version}.tar.bz2
-# Source0-md5:	eb36559e436cd785aefec066e65ffc19
+# Source0-md5:	0c34e076a7cf1fcd53f19a17fb5403cb
 Patch0:		%{name}-c++-static.patch
-URL:		http://www.linphone.org/technical-corner/liblinphone
+Patch1:		%{name}-static.patch
+Patch2:		%{name}-lime.patch
+Patch3:		%{name}-jsoncpp.patch
+Patch4:		%{name}-link.patch
+Patch5:		%{name}-belle-sip.patch
+URL:		https://www.linphone.org/technical-corner/liblinphone
 # base and tester components
-BuildRequires:	bctoolbox-devel >= 0.0.3
+BuildRequires:	bctoolbox-devel >= 5.2
 BuildRequires:	belcard-devel >= 4.5.20-1
-BuildRequires:	belle-sip-devel >= 4.5.20-1
-BuildRequires:	belr-devel >= 4.5.15-1
-%{?with_zrtp:BuildRequires:	bzrtp-devel >= 4.5.15-1}
+BuildRequires:	belle-sip-devel >= 5.1
+BuildRequires:	belr-devel >= 5.1
+%{?with_zrtp:BuildRequires:	bzrtp-devel >= 5.2}
 BuildRequires:	cmake >= 3.1
 BuildRequires:	doxygen
+BuildRequires:	jsoncpp-devel
 BuildRequires:	libsoci-devel >= 4.0
 BuildRequires:	libsoci-sqlite3-devel >= 4.0
 BuildRequires:	libstdc++-devel >= 6:5
 BuildRequires:	libxml2-devel >= 2.0
-%{?with_lime:BuildRequires:	lime-devel}
-BuildRequires:	mediastreamer-devel >= 4.5.22-1
-BuildRequires:	ortp-devel >= 4.5.15-1
+%{?with_lime:BuildRequires:	lime-devel >= 5.2}
+BuildRequires:	mediastreamer-devel >= 5.1.72-2
+BuildRequires:	ortp-devel >= 5.1
 BuildRequires:	pkgconfig
 BuildRequires:	python3 >= 1:3
 # to generate C++ wrappers
@@ -45,12 +52,13 @@ BuildRequires:	udev-devel
 BuildRequires:	xerces-c-devel
 BuildRequires:	zlib-devel >= 1.2.3
 Requires(post,postun):	/sbin/ldconfig
-Requires:	bctoolbox >= 0.0.3
-Requires:	belle-sip >= 4.5
-Requires:	belr >= 4.5
-%{?with_zrtp:Requires:	bzrtp >= 4.5}
-Requires:	mediastreamer >= 4.5
-Requires:	ortp >= 4.5
+Requires:	bctoolbox >= 5.2
+Requires:	belle-sip >= 5.1
+Requires:	belr >= 5.1
+%{?with_zrtp:Requires:	bzrtp >= 5.2}
+%{?with_lime:Requires:	lime >= 5.2}
+Requires:	mediastreamer >= 5.1.72-2
+Requires:	ortp >= 5.1
 Requires:	sqlite3 >= 3.7.0
 Requires:	zlib >= 1.2.3
 Obsoletes:	linphone-libs < 4
@@ -80,15 +88,16 @@ Summary:	Header files for Linphone library
 Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki Linphone
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
-Requires:	bctoolbox-devel >= 0.0.3
-Requires:	belle-sip-devel >= 4.5.20-1
-Requires:	belr-devel >= 4.5.15-1
-%{?with_zrtp:Requires:	bzrtp-devel >= 4.5.15-1}
+Requires:	bctoolbox-devel >= 5.2
+Requires:	belle-sip-devel >= 5.1
+Requires:	belr-devel >= 5.1
+%{?with_zrtp:Requires:	bzrtp-devel >= 5.2}
+Requires:	jsoncpp-devel
 Requires:	libstdc++-devel >= 6:5
 Requires:	libxml2-devel >= 2.0
-%{?with_lime:Requires:	lime-devel}
-Requires:	mediastreamer-devel >= 4.5.22-1
-Requires:	ortp-devel >= 4.5.15-1
+%{?with_lime:Requires:	lime-devel >= 5.2}
+Requires:	mediastreamer-devel >= 5.1.72-2
+Requires:	ortp-devel >= 5.1
 Requires:	sqlite3-devel >= 3.7.0
 Requires:	zlib-devel >= 1.2.3
 Obsoletes:	linphone-devel < 4
@@ -195,6 +204,11 @@ pochodzącego z GNOME.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
 
 %build
 install -d builddir
@@ -224,14 +238,15 @@ rm -rf $RPM_BUILD_ROOT
 %{__rm} -r $RPM_BUILD_ROOT%{_datadir}/liblinphone_tester
 
 # packaged as %doc
-%{__rm} -r $RPM_BUILD_ROOT%{_docdir}/liblinphone-4.5.0
+%{__rm} -r $RPM_BUILD_ROOT%{_docdir}/liblinphone-5.1.0
 
 # omitted by cmake install
 install -d $RPM_BUILD_ROOT%{_mandir}/{man1,cs/man1}
 cp -p share/C/{linphonec,linphonecsh}.1 $RPM_BUILD_ROOT%{_mandir}/man1
 cp -p share/cs/linphonec.1 $RPM_BUILD_ROOT%{_mandir}/cs/man1
 
-# missing in 4.x
+# missing in 4+
+[ ! -d $RPM_BUILD_ROOT%{_pkgconfigdir} ] || exit 1
 install -d $RPM_BUILD_ROOT%{_pkgconfigdir}
 cat >>$RPM_BUILD_ROOT%{_pkgconfigdir}/linphone.pc <<'EOF'
 prefix=%{_prefix}
@@ -279,6 +294,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/lp-test-ecc
 %attr(755,root,root) %{_libdir}/liblinphone.so.10
 %{_datadir}/belr/grammars/cpim_grammar
+%{_datadir}/belr/grammars/ics_grammar
 %{_datadir}/belr/grammars/identity_grammar
 %{_datadir}/linphone
 %{_datadir}/sounds/linphone

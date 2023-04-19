@@ -1,0 +1,120 @@
+--- liblinphone-5.1.73/tester/call_secure_tester.c.orig	2022-12-06 10:47:26.000000000 +0100
++++ liblinphone-5.1.73/tester/call_secure_tester.c	2023-04-19 16:22:22.531145554 +0200
+@@ -839,8 +839,8 @@ static bool_t setup_dtls_srtp(LinphoneCo
+ 	path = bc_tester_file("certificates-pauline");
+ 	linphone_core_set_user_certificates_path(pauline->lc, path);
+ 	bc_free(path);
+-	belle_sip_mkdir(linphone_core_get_user_certificates_path(marie->lc));
+-	belle_sip_mkdir(linphone_core_get_user_certificates_path(pauline->lc));
++	bctbx_mkdir(linphone_core_get_user_certificates_path(marie->lc));
++	bctbx_mkdir(linphone_core_get_user_certificates_path(pauline->lc));
+ 	return TRUE;
+ }
+ 
+--- liblinphone-5.1.73/tester/call_single_tester.c.orig	2022-12-06 10:47:26.000000000 +0100
++++ liblinphone-5.1.73/tester/call_single_tester.c	2023-04-19 16:40:52.125654367 +0200
+@@ -3319,8 +3319,8 @@ static void _call_base_with_configfile(L
+ 			path = bc_tester_file("certificates-pauline");
+ 			linphone_core_set_user_certificates_path(pauline->lc, path);
+ 			bc_free(path);
+-			belle_sip_mkdir(linphone_core_get_user_certificates_path(marie->lc));
+-			belle_sip_mkdir(linphone_core_get_user_certificates_path(pauline->lc));
++			bctbx_mkdir(linphone_core_get_user_certificates_path(marie->lc));
++			bctbx_mkdir(linphone_core_get_user_certificates_path(pauline->lc));
+ 		}
+ 
+ 		if (policy == LinphonePolicyUseIce) {
+--- liblinphone-5.1.73/tester/call_with_rtp_bundle_tester.c.orig	2022-12-06 10:47:26.000000000 +0100
++++ liblinphone-5.1.73/tester/call_with_rtp_bundle_tester.c	2023-04-19 16:41:32.125254370 +0200
+@@ -54,8 +54,8 @@ static bool_t setup_dtls_srtp(LinphoneCo
+ 	path = bc_tester_file("certificates-pauline");
+ 	linphone_core_set_user_certificates_path(pauline->lc, path);
+ 	bc_free(path);
+-	belle_sip_mkdir(linphone_core_get_user_certificates_path(marie->lc));
+-	belle_sip_mkdir(linphone_core_get_user_certificates_path(pauline->lc));
++	bctbx_mkdir(linphone_core_get_user_certificates_path(marie->lc));
++	bctbx_mkdir(linphone_core_get_user_certificates_path(pauline->lc));
+ 	return TRUE;
+ }
+ 
+--- liblinphone-5.1.73/tester/stun_tester.c.orig	2022-12-06 10:47:26.000000000 +0100
++++ liblinphone-5.1.73/tester/stun_tester.c	2023-04-19 16:42:26.544235453 +0200
+@@ -204,8 +204,8 @@ static void ice_turn_call_base(const Cal
+ 			path = bc_tester_file("certificates-pauline");
+ 			linphone_core_set_user_certificates_path(pauline->lc, path);
+ 			bc_free(path);
+-			belle_sip_mkdir(linphone_core_get_user_certificates_path(marie->lc));
+-			belle_sip_mkdir(linphone_core_get_user_certificates_path(pauline->lc));
++			bctbx_mkdir(linphone_core_get_user_certificates_path(marie->lc));
++			bctbx_mkdir(linphone_core_get_user_certificates_path(pauline->lc));
+ 		}
+ 	}
+ 
+@@ -459,8 +459,8 @@ static void _ice_turn_dtls_call(const Ca
+ 			path = bc_tester_file("certificates-pauline");
+ 			linphone_core_set_user_certificates_path(pauline->lc, path);
+ 			bc_free(path);
+-			belle_sip_mkdir(linphone_core_get_user_certificates_path(marie->lc));
+-			belle_sip_mkdir(linphone_core_get_user_certificates_path(pauline->lc));
++			bctbx_mkdir(linphone_core_get_user_certificates_path(marie->lc));
++			bctbx_mkdir(linphone_core_get_user_certificates_path(pauline->lc));
+ 		}
+ 	}
+ 
+--- liblinphone-5.1.73/tester/call_video_tester.cpp.orig	2022-12-06 10:47:26.000000000 +0100
++++ liblinphone-5.1.73/tester/call_video_tester.cpp	2023-04-19 16:44:56.913445918 +0200
+@@ -619,8 +619,8 @@ void video_call_base_2(LinphoneCoreManag
+ 		path = bc_tester_file("certificates-pauline");
+ 		linphone_core_set_user_certificates_path(caller->lc, path);
+ 		bc_free(path);
+-		belle_sip_mkdir(linphone_core_get_user_certificates_path(callee->lc));
+-		belle_sip_mkdir(linphone_core_get_user_certificates_path(caller->lc));
++		bctbx_mkdir(linphone_core_get_user_certificates_path(callee->lc));
++		bctbx_mkdir(linphone_core_get_user_certificates_path(caller->lc));
+ 	}
+ 
+ 	linphone_core_set_media_encryption(callee->lc,mode);
+@@ -742,8 +742,8 @@ void video_call_base_3(LinphoneCoreManag
+ 		path = bc_tester_file("certificates-pauline");
+ 		linphone_core_set_user_certificates_path(caller->lc, path);
+ 		bc_free(path);
+-		belle_sip_mkdir(linphone_core_get_user_certificates_path(callee->lc));
+-		belle_sip_mkdir(linphone_core_get_user_certificates_path(caller->lc));
++		bctbx_mkdir(linphone_core_get_user_certificates_path(callee->lc));
++		bctbx_mkdir(linphone_core_get_user_certificates_path(caller->lc));
+ 	}
+ 
+ 	linphone_core_set_media_encryption(callee->lc,mode);
+--- liblinphone-5.1.73/tester/call_ice_tester.cpp.orig	2022-12-06 10:47:26.000000000 +0100
++++ liblinphone-5.1.73/tester/call_ice_tester.cpp	2023-04-19 16:52:40.218235966 +0200
+@@ -558,7 +558,7 @@ static void call_paused_resumed_with_ice
+ 			char *path = bc_tester_file("certificates-marie");
+ 			linphone_core_set_user_certificates_path(marie->lc, path);
+ 			bc_free(path);
+-			belle_sip_mkdir(linphone_core_get_user_certificates_path(marie->lc));
++			bctbx_mkdir(linphone_core_get_user_certificates_path(marie->lc));
+ 		}
+ 	}
+ 
+@@ -568,7 +568,7 @@ static void call_paused_resumed_with_ice
+ 			char *path = bc_tester_file("certificates-pauline");
+ 			linphone_core_set_user_certificates_path(pauline->lc, path);
+ 			bc_free(path);
+-			belle_sip_mkdir(linphone_core_get_user_certificates_path(pauline->lc));
++			bctbx_mkdir(linphone_core_get_user_certificates_path(pauline->lc));
+ 		}
+ 	}
+ 
+--- liblinphone-5.1.73/tester/capability_negotiation_tester.cpp.orig	2022-12-06 10:47:26.000000000 +0100
++++ liblinphone-5.1.73/tester/capability_negotiation_tester.cpp	2023-04-19 17:11:27.896420462 +0200
+@@ -220,8 +220,8 @@ void encrypted_call_with_params_base(Lin
+ 		path = bc_tester_file("certificates-pauline");
+ 		linphone_core_set_user_certificates_path(caller->lc, path);
+ 		bc_free(path);
+-		belle_sip_mkdir(linphone_core_get_user_certificates_path(callee->lc));
+-		belle_sip_mkdir(linphone_core_get_user_certificates_path(caller->lc));
++		bctbx_mkdir(linphone_core_get_user_certificates_path(callee->lc));
++		bctbx_mkdir(linphone_core_get_user_certificates_path(caller->lc));
+ 
+ 		stats caller_stat = caller->stat;
+ 		stats callee_stat = callee->stat;

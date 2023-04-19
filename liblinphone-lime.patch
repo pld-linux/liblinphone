@@ -1,0 +1,46 @@
+--- liblinphone-5.1.73/src/chat/encryption/encryption-engine.h.orig	2022-12-06 10:47:26.000000000 +0100
++++ liblinphone-5.1.73/src/chat/encryption/encryption-engine.h	2023-04-16 20:10:46.962618008 +0200
+@@ -117,7 +117,6 @@ public:
+ 	) { return nullptr; }
+ 
+ 	virtual void cleanDb () {}
+-	virtual void update () {}
+ 	virtual EngineType getEngineType () { return EngineType::Undefined; }
+ 	virtual AbstractChatRoom::SecurityLevel getSecurityLevel (const std::string &deviceId) const { return AbstractChatRoom::SecurityLevel::ClearText; }
+ 	virtual std::list<EncryptionParameter> getEncryptionParameters () { return std::list<EncryptionParameter>(); }
+--- liblinphone-5.1.73/src/chat/encryption/lime-x3dh-encryption-engine.h.orig	2022-12-06 10:47:26.000000000 +0100
++++ liblinphone-5.1.73/src/chat/encryption/lime-x3dh-encryption-engine.h	2023-04-16 20:13:13.605156910 +0200
+@@ -150,7 +150,7 @@ public:
+ 	AbstractChatRoom::SecurityLevel getSecurityLevel (const std::string &deviceId) const override;
+ 	EncryptionEngine::EngineType getEngineType () override;
+ 	std::list<EncryptionParameter> getEncryptionParameters () override;
+-	void update () override;
++	void update (const std::string &localDeviceId);
+ 	void cleanDb () override;
+ 
+ 	// CoreListener overrides
+--- liblinphone-5.1.73/src/chat/encryption/lime-x3dh-encryption-engine.cpp.orig	2023-04-16 20:22:27.455489779 +0200
++++ liblinphone-5.1.73/src/chat/encryption/lime-x3dh-encryption-engine.cpp	2023-04-16 20:22:29.815476994 +0200
+@@ -501,11 +501,11 @@ ChatMessageModifier::Result LimeX3dhEncr
+ 	return ChatMessageModifier::Result::Done;
+ }
+ 
+-void LimeX3dhEncryptionEngine::update () {
++void LimeX3dhEncryptionEngine::update (const std::string &localDeviceId) {
+ 	lime::limeCallback callback = setLimeCallback("Keys update");
+ 
+ 	LinphoneConfig *lpconfig = linphone_core_get_config(getCore()->getCCore());
+-	limeManager->update(callback);
++	limeManager->update(localDeviceId, callback);
+ 	linphone_config_set_int(lpconfig, "lime", "last_update_time", (int)lastLimeUpdate);
+ }
+ 
+@@ -966,7 +966,7 @@ void LimeX3dhEncryptionEngine::onRegistr
+ 			// update keys if necessary
+ 			int limeUpdateThreshold = linphone_config_get_int(lpconfig, "lime", "lime_update_threshold", 86400); // 24 hours = 86400 s
+ 			if (ms_time(NULL) - lastLimeUpdate > limeUpdateThreshold) {
+-				update();
++				update(localDeviceId);
+ 				lastLimeUpdate = ms_time(NULL);
+ 			}
+ 		}

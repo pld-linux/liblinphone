@@ -1,0 +1,27 @@
+--- liblinphone-5.1.73/CMakeLists.txt.orig	2022-12-06 10:47:26.000000000 +0100
++++ liblinphone-5.1.73/CMakeLists.txt	2023-04-17 21:09:43.248724660 +0200
+@@ -96,10 +96,10 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+ 	add_definitions("-DDEBUG")
+ endif()
+ 
+-if(ENABLE_STATIC)
+-	set(LINPHONE_LIBS_FOR_TOOLS linphone-static)
+-else()
++if(ENABLE_SHARED)
+ 	set(LINPHONE_LIBS_FOR_TOOLS linphone)
++else()
++	set(LINPHONE_LIBS_FOR_TOOLS linphone-static)
+ endif()
+ if(WIN32 AND NOT CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
+ 	list(APPEND LINPHONE_LIBS_FOR_TOOLS "Ws2_32" "Iphlpapi")
+--- liblinphone-5.1.73/src/CMakeLists.txt.orig	2023-04-17 18:17:25.881393652 +0200
++++ liblinphone-5.1.73/src/CMakeLists.txt	2023-04-17 18:45:03.992410894 +0200
+@@ -24,6 +24,8 @@ set(LINK_LIBS
+ 	bctoolbox
+ 	${BELLESIP_TARGETNAME}
+ 	belr
++	bzrtp
++	mediastreamer
+ )
+ set(PUBLIC_LINK_LIBS
+ 	ortp
