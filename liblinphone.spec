@@ -9,37 +9,36 @@
 Summary:	Linphone Internet Phone libraries
 Summary(pl.UTF-8):	Biblioteki telefonu internetowego Linphone
 Name:		liblinphone
-# note: 5.2.x is AGPL-licensed; see DEVEL-5.2 branch
-Version:	5.1.73
+Version:	5.2.51
 Release:	1
-License:	GPL v3+ or proprietary
+License:	AGPL v3+ or proprietary
 Group:		Applications/Communications
 #Source0Download: https://gitlab.linphone.org/BC/public/liblinphone/-/tags
 Source0:	https://gitlab.linphone.org/BC/public/liblinphone/-/archive/%{version}/%{name}-%{version}.tar.bz2
-# Source0-md5:	0c34e076a7cf1fcd53f19a17fb5403cb
+# Source0-md5:	30e4f91bb6355aebb325c4cf054c2ac6
 Patch0:		%{name}-c++-static.patch
 Patch1:		%{name}-static.patch
-Patch2:		%{name}-lime.patch
-Patch3:		%{name}-jsoncpp.patch
-Patch4:		%{name}-link.patch
-Patch5:		%{name}-belle-sip.patch
+Patch2:		%{name}-jsoncpp.patch
+Patch3:		%{name}-link.patch
+Patch4:		%{name}-zxing.patch
 URL:		https://www.linphone.org/technical-corner/liblinphone
 # base and tester components
 BuildRequires:	bctoolbox-devel >= 5.2
 BuildRequires:	belcard-devel >= 4.5.20-1
-BuildRequires:	belle-sip-devel >= 5.1
-BuildRequires:	belr-devel >= 5.1
+BuildRequires:	belle-sip-devel >= 5.2
+BuildRequires:	belr-devel >= 5.2
 %{?with_zrtp:BuildRequires:	bzrtp-devel >= 5.2}
 BuildRequires:	cmake >= 3.1
 BuildRequires:	doxygen
 BuildRequires:	jsoncpp-devel
+BuildRequires:	libjpeg-turbo-devel
 BuildRequires:	libsoci-devel >= 4.0
 BuildRequires:	libsoci-sqlite3-devel >= 4.0
-BuildRequires:	libstdc++-devel >= 6:5
+BuildRequires:	libstdc++-devel >= 6:7
 BuildRequires:	libxml2-devel >= 2.0
 %{?with_lime:BuildRequires:	lime-devel >= 5.2}
-BuildRequires:	mediastreamer-devel >= 5.1.72-2
-BuildRequires:	ortp-devel >= 5.1
+BuildRequires:	mediastreamer-devel >= 5.2.51
+BuildRequires:	ortp-devel >= 5.2
 BuildRequires:	pkgconfig
 BuildRequires:	python3 >= 1:3
 # to generate C++ wrappers
@@ -50,15 +49,16 @@ BuildRequires:	rpmbuild(macros) >= 1.605
 BuildRequires:	sqlite3-devel >= 3.7.0
 BuildRequires:	udev-devel
 BuildRequires:	xerces-c-devel
+BuildRequires:	zxing-cpp-nu-devel >= 1.4.0
 BuildRequires:	zlib-devel >= 1.2.3
 Requires(post,postun):	/sbin/ldconfig
 Requires:	bctoolbox >= 5.2
-Requires:	belle-sip >= 5.1
-Requires:	belr >= 5.1
+Requires:	belle-sip >= 5.2
+Requires:	belr >= 5.2
 %{?with_zrtp:Requires:	bzrtp >= 5.2}
 %{?with_lime:Requires:	lime >= 5.2}
-Requires:	mediastreamer >= 5.1.72-2
-Requires:	ortp >= 5.1
+Requires:	mediastreamer >= 5.2.51
+Requires:	ortp >= 5.2
 Requires:	sqlite3 >= 3.7.0
 Requires:	zlib >= 1.2.3
 Obsoletes:	linphone-libs < 4
@@ -89,15 +89,15 @@ Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki Linphone
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 Requires:	bctoolbox-devel >= 5.2
-Requires:	belle-sip-devel >= 5.1
-Requires:	belr-devel >= 5.1
+Requires:	belle-sip-devel >= 5.2
+Requires:	belr-devel >= 5.2
 %{?with_zrtp:Requires:	bzrtp-devel >= 5.2}
 Requires:	jsoncpp-devel
-Requires:	libstdc++-devel >= 6:5
+Requires:	libstdc++-devel >= 6:7
 Requires:	libxml2-devel >= 2.0
 %{?with_lime:Requires:	lime-devel >= 5.2}
-Requires:	mediastreamer-devel >= 5.1.72-2
-Requires:	ortp-devel >= 5.1
+Requires:	mediastreamer-devel >= 5.2.51
+Requires:	ortp-devel >= 5.2
 Requires:	sqlite3-devel >= 3.7.0
 Requires:	zlib-devel >= 1.2.3
 Obsoletes:	linphone-devel < 4
@@ -208,7 +208,6 @@ pochodzącego z GNOME.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
 
 %build
 install -d builddir
@@ -219,7 +218,8 @@ cd builddir
 	-DENABLE_DOC=ON \
 	%{!?with_zrtp:-DENABLE_LIME=OFF} \
 	%{!?with_lime:-DENABLE_LIME_X3DH=OFF} \
-	%{!?with_static_libs:-DENABLE_STATIC=OFF}
+	%{!?with_static_libs:-DENABLE_STATIC=OFF} \
+	-DENABLE_STRICT=OFF
 
 %{__make}
 
@@ -238,7 +238,7 @@ rm -rf $RPM_BUILD_ROOT
 %{__rm} -r $RPM_BUILD_ROOT%{_datadir}/liblinphone_tester
 
 # packaged as %doc
-%{__rm} -r $RPM_BUILD_ROOT%{_docdir}/liblinphone-5.1.0
+%{__rm} -r $RPM_BUILD_ROOT%{_docdir}/liblinphone-5.2.0
 
 # omitted by cmake install
 install -d $RPM_BUILD_ROOT%{_mandir}/{man1,cs/man1}
