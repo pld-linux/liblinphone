@@ -1,34 +1,32 @@
 # TODO:
-# - -DENABLE_TUNNEL (BR: TunnelConfig.cmake) - proprietary?
+# - -DENABLE_TUNNEL (BR: TunnelConfig.cmake >= 0.7.0) - proprietary?
 #
 # Conditional build:
+%bcond_with	ldap		# OpenLDAP contacts provider (too old LDAP in PLD?)
 %bcond_without	lime		# LIMEv2/X3DH encryption support
 %bcond_without	static_libs	# static libraries
-%bcond_without	zrtp		# LIMEv1/ZRTP support
 
 Summary:	Linphone Internet Phone libraries
 Summary(pl.UTF-8):	Biblioteki telefonu internetowego Linphone
 Name:		liblinphone
-Version:	5.2.51
+Version:	5.3.32
 Release:	1
 License:	AGPL v3+ or proprietary
 Group:		Applications/Communications
 #Source0Download: https://gitlab.linphone.org/BC/public/liblinphone/-/tags
 Source0:	https://gitlab.linphone.org/BC/public/liblinphone/-/archive/%{version}/%{name}-%{version}.tar.bz2
-# Source0-md5:	30e4f91bb6355aebb325c4cf054c2ac6
-Patch0:		%{name}-c++-static.patch
-Patch1:		%{name}-static.patch
-Patch2:		%{name}-jsoncpp.patch
-Patch3:		%{name}-link.patch
+# Source0-md5:	aa5da7c1131759bfb575276ed24f4bc1
+Patch0:		%{name}-wrappers.patch
 Patch4:		%{name}-zxing.patch
 URL:		https://www.linphone.org/technical-corner/liblinphone
 # base and tester components
-BuildRequires:	bctoolbox-devel >= 5.2
-BuildRequires:	belcard-devel >= 4.5.20-1
-BuildRequires:	belle-sip-devel >= 5.2
-BuildRequires:	belr-devel >= 5.2
-%{?with_zrtp:BuildRequires:	bzrtp-devel >= 5.2}
-BuildRequires:	cmake >= 3.1
+BuildRequires:	bctoolbox-devel >= 5.3.0
+BuildRequires:	belcard-devel >= 5.3.0
+BuildRequires:	belle-sip-devel >= 5.3.0
+BuildRequires:	belr-devel >= 5.3.0
+%{?with_lime:BuildRequires:	bzrtp-devel >= 5.3.0}
+BuildRequires:	cmake >= 3.22
+# required not only for docs, but also C++ wrappers
 BuildRequires:	doxygen
 BuildRequires:	jsoncpp-devel
 BuildRequires:	libjpeg-turbo-devel
@@ -36,9 +34,10 @@ BuildRequires:	libsoci-devel >= 4.0
 BuildRequires:	libsoci-sqlite3-devel >= 4.0
 BuildRequires:	libstdc++-devel >= 6:7
 BuildRequires:	libxml2-devel >= 2.0
-%{?with_lime:BuildRequires:	lime-devel >= 5.2}
-BuildRequires:	mediastreamer-devel >= 5.2.51
-BuildRequires:	ortp-devel >= 5.2
+%{?with_lime:BuildRequires:	lime-devel >= 5.3.0}
+BuildRequires:	mediastreamer-devel >= 5.3.0
+%{?with_ldap:BuildRequires:	openldap-devel}
+BuildRequires:	ortp-devel >= 5.3.0
 BuildRequires:	pkgconfig
 BuildRequires:	python3 >= 1:3
 # to generate C++ wrappers
@@ -52,13 +51,14 @@ BuildRequires:	xerces-c-devel
 BuildRequires:	zxing-cpp-nu-devel >= 1.4.0
 BuildRequires:	zlib-devel >= 1.2.3
 Requires(post,postun):	/sbin/ldconfig
-Requires:	bctoolbox >= 5.2
-Requires:	belle-sip >= 5.2
-Requires:	belr >= 5.2
-%{?with_zrtp:Requires:	bzrtp >= 5.2}
-%{?with_lime:Requires:	lime >= 5.2}
-Requires:	mediastreamer >= 5.2.51
-Requires:	ortp >= 5.2
+Requires:	bctoolbox >= 5.3.0
+Requires:	belcard >= 5.3.0
+Requires:	belle-sip >= 5.3.0
+Requires:	belr >= 5.3.0
+%{?with_lime:Requires:	bzrtp >= 5.3.0}
+%{?with_lime:Requires:	lime >= 5.3.0}
+Requires:	mediastreamer >= 5.3.0
+Requires:	ortp >= 5.3.0
 Requires:	sqlite3 >= 3.7.0
 Requires:	zlib >= 1.2.3
 Obsoletes:	linphone-libs < 4
@@ -88,16 +88,16 @@ Summary:	Header files for Linphone library
 Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki Linphone
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
-Requires:	bctoolbox-devel >= 5.2
-Requires:	belle-sip-devel >= 5.2
-Requires:	belr-devel >= 5.2
-%{?with_zrtp:Requires:	bzrtp-devel >= 5.2}
+Requires:	bctoolbox-devel >= 5.3.0
+Requires:	belle-sip-devel >= 5.3.0
+Requires:	belr-devel >= 5.3.0
+%{?with_lime:Requires:	bzrtp-devel >= 5.3.0}
 Requires:	jsoncpp-devel
 Requires:	libstdc++-devel >= 6:7
 Requires:	libxml2-devel >= 2.0
-%{?with_lime:Requires:	lime-devel >= 5.2}
-Requires:	mediastreamer-devel >= 5.2.51
-Requires:	ortp-devel >= 5.2
+%{?with_lime:Requires:	lime-devel >= 5.3.0}
+Requires:	mediastreamer-devel >= 5.3.0
+Requires:	ortp-devel >= 5.3.0
 Requires:	sqlite3-devel >= 3.7.0
 Requires:	zlib-devel >= 1.2.3
 Obsoletes:	linphone-devel < 4
@@ -204,41 +204,47 @@ pochodzącego z GNOME.
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
 %patch4 -p1
 
 %build
-install -d builddir
-cd builddir
-# ENABLE_GTK_UI just installs dead {audio-assistant,linphone}.desktop files
-# ENABLE_LDAP does nothing
-%cmake .. \
-	-DENABLE_DOC=ON \
-	%{!?with_zrtp:-DENABLE_LIME=OFF} \
+%if %{with static_libs}
+%cmake -B builddir-static \
+	-DBUILD_SHARED_LIBS=OFF \
+	%{?with_ldap:-DENABLE_LDAP=ON} \
 	%{!?with_lime:-DENABLE_LIME_X3DH=OFF} \
-	%{!?with_static_libs:-DENABLE_STATIC=OFF} \
-	-DENABLE_STRICT=OFF
+	-DENABLE_TOOLS=OFF \
+	-DENABLE_UNIT_TESTS=OFF
 
-%{__make}
+%{__make} -C builddir-static
+%endif
+
+%cmake -B builddir \
+	-DENABLE_CONSOLE_UI=ON \
+	-DENABLE_DOC=ON \
+	%{?with_ldap:-DENABLE_LDAP=ON} \
+	%{!?with_lime:-DENABLE_LIME_X3DH=OFF} \
+	-DENABLE_STRICT=OFF \
+	-DENABLE_UNIT_TESTS=OFF
+
+%{__make} -C builddir
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
+%if %{with static_libs}
+%{__make} -C builddir-static install \
+	DESTDIR=$RPM_BUILD_ROOT
+%endif
+
 %{__make} -C builddir install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-# disable completeness check incompatible with split packaging
-%{__sed} -i -e '/^foreach(target .*IMPORT_CHECK_TARGETS/,/^endforeach/d; /^unset(_IMPORT_CHECK_TARGETS)/d' $RPM_BUILD_ROOT%{_datadir}/Linphone/cmake/LinphoneTargets.cmake
-%{__sed} -i -e '/^foreach(target .*IMPORT_CHECK_TARGETS/,/^endforeach/d; /^unset(_IMPORT_CHECK_TARGETS)/d' $RPM_BUILD_ROOT%{_datadir}/LinphoneCxx/cmake/LinphoneCxxTargets.cmake
-
 # some tests
-%{__rm} $RPM_BUILD_ROOT%{_bindir}/{groupchat_benchmark,liblinphone_tester,linphone-daemon-pipetest,*_test}
-%{__rm} -r $RPM_BUILD_ROOT%{_datadir}/liblinphone_tester
+%{__rm} $RPM_BUILD_ROOT%{_bindir}/liblinphone-{lpc2xml-test,test-ecc,xml2lpc-test}
+%{__rm} $RPM_BUILD_ROOT%{_bindir}/linphone-daemon-pipetest
 
 # packaged as %doc
-%{__rm} -r $RPM_BUILD_ROOT%{_docdir}/liblinphone-5.2.0
+%{__rm} -r $RPM_BUILD_ROOT%{_docdir}/liblinphone-5.3.0
 
 # omitted by cmake install
 install -d $RPM_BUILD_ROOT%{_mandir}/{man1,cs/man1}
@@ -248,7 +254,7 @@ cp -p share/cs/linphonec.1 $RPM_BUILD_ROOT%{_mandir}/cs/man1
 # missing in 4+
 [ ! -d $RPM_BUILD_ROOT%{_pkgconfigdir} ] || exit 1
 install -d $RPM_BUILD_ROOT%{_pkgconfigdir}
-cat >>$RPM_BUILD_ROOT%{_pkgconfigdir}/linphone.pc <<'EOF'
+cat >$RPM_BUILD_ROOT%{_pkgconfigdir}/linphone.pc <<'EOF'
 prefix=%{_prefix}
 exec_prefix=%{_prefix}
 libdir=%{_libdir}
@@ -262,7 +268,7 @@ Libs: -L${libdir} -llinphone
 Cflags: -I${includedir}
 EOF
 
-cat >>$RPM_BUILD_ROOT%{_pkgconfigdir}/linphone++.pc <<'EOF'
+cat >$RPM_BUILD_ROOT%{_pkgconfigdir}/linphone++.pc <<'EOF'
 prefix=%{_prefix}
 exec_prefix=%{_prefix}
 libdir=%{_libdir}
@@ -288,10 +294,9 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc CHANGELOG.md NEWS README.md
+%attr(755,root,root) %{_bindir}/liblinphone-auto-answer
+%attr(755,root,root) %{_bindir}/liblinphone-sendmsg
 %attr(755,root,root) %{_bindir}/linphone-daemon
-%attr(755,root,root) %{_bindir}/lp-auto-answer
-%attr(755,root,root) %{_bindir}/lp-sendmsg
-%attr(755,root,root) %{_bindir}/lp-test-ecc
 %attr(755,root,root) %{_libdir}/liblinphone.so.10
 %{_datadir}/belr/grammars/cpim_grammar
 %{_datadir}/belr/grammars/ics_grammar
@@ -304,8 +309,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/liblinphone.so
 %{_includedir}/linphone
 %{_pkgconfigdir}/linphone.pc
-%dir %{_datadir}/Linphone
-%{_datadir}/Linphone/cmake
+%dir %{_datadir}/LibLinphone
+%{_datadir}/LibLinphone/cmake
 
 %if %{with static_libs}
 %files static

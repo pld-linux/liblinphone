@@ -1,22 +1,11 @@
---- liblinphone-5.2.51/src/factory/factory.cpp.orig	2023-04-21 06:34:56.157462399 +0200
-+++ liblinphone-5.2.51/src/factory/factory.cpp	2023-04-21 06:35:01.130768789 +0200
-@@ -802,7 +802,7 @@ LinphoneContent *Factory::createQRCode(c
+--- liblinphone-5.3.32/src/factory/factory.cpp.orig	2024-03-10 13:08:36.628399613 +0100
++++ liblinphone-5.3.32/src/factory/factory.cpp	2024-03-10 13:10:03.947926563 +0100
+@@ -849,7 +849,7 @@ LinphoneContent *Factory::createQRCode(c
  	}
- 	
+ 
  	auto writer = ZXing::MultiFormatWriter(format).setMargin((int)margin).setEncoding(encoding).setEccLevel(eccLevel);
 -	auto matrix = writer.encode(ZXing::TextUtfEncoding::FromUtf8(code), (int)width, (int)height);
 +	auto matrix = writer.encode(code, (int)width, (int)height);
  	auto bitmap = ZXing::ToMatrix<uint8_t>(matrix);
- 	
- 	LinphoneContent * content = Factory::createContent();
---- liblinphone-5.2.51/CMakeLists.txt.orig	2023-04-20 22:20:41.274783354 +0200
-+++ liblinphone-5.2.51/CMakeLists.txt	2023-04-21 06:35:41.677215797 +0200
-@@ -92,7 +92,7 @@ cmake_dependent_option(ENABLE_QRCODE "En
- # * DISABLE_BC_PACKAGE_SEARCH: skip find_package() for every BC package (bctoolbox, ortp, etc.)
- # * DISABLE_SOCI_PACKAGE_SEARCH: skip find_package() for Soci.
  
--set(CMAKE_CXX_STANDARD 14)
-+set(CMAKE_CXX_STANDARD 17)
- set(CMAKE_CXX_EXTENSIONS NO)
- 
- if(NOT CMAKE_BUILD_TYPE)
+ 	LinphoneContent *content = Factory::createContent();
