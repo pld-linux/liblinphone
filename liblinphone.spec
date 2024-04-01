@@ -17,6 +17,7 @@ Group:		Applications/Communications
 Source0:	https://gitlab.linphone.org/BC/public/liblinphone/-/archive/%{version}/%{name}-%{version}.tar.bz2
 # Source0-md5:	aa5da7c1131759bfb575276ed24f4bc1
 Patch0:		%{name}-wrappers.patch
+Patch1:		%{name}-jsoncpp.patch
 Patch4:		%{name}-zxing.patch
 URL:		https://www.linphone.org/technical-corner/liblinphone
 # base and tester components
@@ -204,6 +205,7 @@ pochodzącego z GNOME.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 %patch4 -p1
 
 %build
