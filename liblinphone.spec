@@ -10,7 +10,7 @@ Summary:	Linphone Internet Phone libraries
 Summary(pl.UTF-8):	Biblioteki telefonu internetowego Linphone
 Name:		liblinphone
 Version:	5.3.39
-Release:	1
+Release:	2
 License:	AGPL v3+ or proprietary
 Group:		Applications/Communications
 #Source0Download: https://gitlab.linphone.org/BC/public/liblinphone/-/tags
@@ -212,6 +212,8 @@ pochodzącego z GNOME.
 %if %{with static_libs}
 %cmake -B builddir-static \
 	-DBUILD_SHARED_LIBS=OFF \
+	-DCMAKE_INSTALL_DATADIR=share \
+	-DCMAKE_INSTALL_LIBDIR=%{_lib} \
 	%{?with_ldap:-DENABLE_LDAP=ON} \
 	%{!?with_lime:-DENABLE_LIME_X3DH=OFF} \
 	-DENABLE_TOOLS=OFF \
@@ -221,6 +223,8 @@ pochodzącego z GNOME.
 %endif
 
 %cmake -B builddir \
+	-DCMAKE_INSTALL_DATADIR=share \
+	-DCMAKE_INSTALL_LIBDIR=%{_lib} \
 	-DENABLE_CONSOLE_UI=ON \
 	-DENABLE_DOC=ON \
 	%{?with_ldap:-DENABLE_LDAP=ON} \
@@ -300,6 +304,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/liblinphone-sendmsg
 %attr(755,root,root) %{_bindir}/linphone-daemon
 %attr(755,root,root) %{_libdir}/liblinphone.so.10
+%dir %{_libdir}/liblinphone
+%dir %{_libdir}/liblinphone/plugins
 %{_datadir}/belr/grammars/cpim_grammar
 %{_datadir}/belr/grammars/ics_grammar
 %{_datadir}/belr/grammars/identity_grammar
