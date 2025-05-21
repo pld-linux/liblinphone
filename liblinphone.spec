@@ -9,23 +9,24 @@
 Summary:	Linphone Internet Phone libraries
 Summary(pl.UTF-8):	Biblioteki telefonu internetowego Linphone
 Name:		liblinphone
-Version:	5.3.104
+Version:	5.4.17
 Release:	1
 License:	AGPL v3+ or proprietary
 Group:		Applications/Communications
 #Source0Download: https://gitlab.linphone.org/BC/public/liblinphone/-/tags
 Source0:	https://gitlab.linphone.org/BC/public/liblinphone/-/archive/%{version}/%{name}-%{version}.tar.bz2
-# Source0-md5:	0d8f2df10989765e9fdc686f0061e12d
+# Source0-md5:	59998279524f56f7324f28e06c366c7d
 Patch0:		%{name}-wrappers.patch
 Patch1:		%{name}-jsoncpp.patch
+Patch2:		%{name}-soci.patch
 Patch4:		%{name}-zxing.patch
 URL:		https://www.linphone.org/technical-corner/liblinphone
 # base and tester components
-BuildRequires:	bctoolbox-devel >= 5.3.0
-BuildRequires:	belcard-devel >= 5.3.0
-BuildRequires:	belle-sip-devel >= 5.3.0
-BuildRequires:	belr-devel >= 5.3.0
-%{?with_lime:BuildRequires:	bzrtp-devel >= 5.3.0}
+BuildRequires:	bctoolbox-devel >= 5.4.0
+BuildRequires:	belcard-devel >= 5.4.0
+BuildRequires:	belle-sip-devel >= 5.4.0
+BuildRequires:	belr-devel >= 5.4.0
+%{?with_lime:BuildRequires:	bzrtp-devel >= 5.4.0}
 BuildRequires:	cmake >= 3.22
 # required not only for docs, but also C++ wrappers
 BuildRequires:	doxygen
@@ -35,10 +36,10 @@ BuildRequires:	libsoci-devel >= 4.0
 BuildRequires:	libsoci-sqlite3-devel >= 4.0
 BuildRequires:	libstdc++-devel >= 6:7
 BuildRequires:	libxml2-devel >= 2.0
-%{?with_lime:BuildRequires:	lime-devel >= 5.3.0}
-BuildRequires:	mediastreamer-devel >= 5.3.0
+%{?with_lime:BuildRequires:	lime-devel >= 5.4.0}
+BuildRequires:	mediastreamer-devel >= 5.4.0
 %{?with_ldap:BuildRequires:	openldap-devel}
-BuildRequires:	ortp-devel >= 5.3.0
+BuildRequires:	ortp-devel >= 5.4.0
 BuildRequires:	pkgconfig
 BuildRequires:	python3 >= 1:3
 # to generate C++ wrappers
@@ -52,14 +53,14 @@ BuildRequires:	xerces-c-devel
 BuildRequires:	zxing-cpp-nu-devel >= 1.4.0
 BuildRequires:	zlib-devel >= 1.2.3
 Requires(post,postun):	/sbin/ldconfig
-Requires:	bctoolbox >= 5.3.0
-Requires:	belcard >= 5.3.0
-Requires:	belle-sip >= 5.3.0
-Requires:	belr >= 5.3.0
-%{?with_lime:Requires:	bzrtp >= 5.3.0}
-%{?with_lime:Requires:	lime >= 5.3.0}
-Requires:	mediastreamer >= 5.3.0
-Requires:	ortp >= 5.3.0
+Requires:	bctoolbox >= 5.4.0
+Requires:	belcard >= 5.4.0
+Requires:	belle-sip >= 5.4.0
+Requires:	belr >= 5.4.0
+%{?with_lime:Requires:	bzrtp >= 5.4.0}
+%{?with_lime:Requires:	lime >= 5.4.0}
+Requires:	mediastreamer >= 5.4.0
+Requires:	ortp >= 5.4.0
 Requires:	sqlite3 >= 3.7.0
 Requires:	zlib >= 1.2.3
 Obsoletes:	linphone-libs < 4
@@ -89,16 +90,16 @@ Summary:	Header files for Linphone library
 Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki Linphone
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
-Requires:	bctoolbox-devel >= 5.3.0
-Requires:	belle-sip-devel >= 5.3.0
-Requires:	belr-devel >= 5.3.0
-%{?with_lime:Requires:	bzrtp-devel >= 5.3.0}
+Requires:	bctoolbox-devel >= 5.4.0
+Requires:	belle-sip-devel >= 5.4.0
+Requires:	belr-devel >= 5.4.0
+%{?with_lime:Requires:	bzrtp-devel >= 5.4.0}
 Requires:	jsoncpp-devel
 Requires:	libstdc++-devel >= 6:7
 Requires:	libxml2-devel >= 2.0
-%{?with_lime:Requires:	lime-devel >= 5.3.0}
-Requires:	mediastreamer-devel >= 5.3.0
-Requires:	ortp-devel >= 5.3.0
+%{?with_lime:Requires:	lime-devel >= 5.4.0}
+Requires:	mediastreamer-devel >= 5.4.0
+Requires:	ortp-devel >= 5.4.0
 Requires:	sqlite3-devel >= 3.7.0
 Requires:	zlib-devel >= 1.2.3
 Obsoletes:	linphone-devel < 4
@@ -206,6 +207,7 @@ pochodzącego z GNOME.
 %setup -q
 %patch -P 0 -p1
 %patch -P 1 -p1
+%patch -P 2 -p1
 %patch -P 4 -p1
 
 %build
@@ -250,7 +252,7 @@ rm -rf $RPM_BUILD_ROOT
 %{__rm} $RPM_BUILD_ROOT%{_bindir}/linphone-daemon-pipetest
 
 # packaged as %doc
-%{__rm} -r $RPM_BUILD_ROOT%{_docdir}/liblinphone-5.3.0
+%{__rm} -r $RPM_BUILD_ROOT%{_docdir}/liblinphone-5.4.0
 
 # omitted by cmake install
 install -d $RPM_BUILD_ROOT%{_mandir}/{man1,cs/man1}
@@ -306,9 +308,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/liblinphone.so.10
 %dir %{_libdir}/liblinphone
 %dir %{_libdir}/liblinphone/plugins
-%{_datadir}/belr/grammars/cpim_grammar
-%{_datadir}/belr/grammars/ics_grammar
-%{_datadir}/belr/grammars/identity_grammar
+%{_datadir}/belr/grammars/cpim_grammar.belr
+%{_datadir}/belr/grammars/ics_grammar.belr
+%{_datadir}/belr/grammars/identity_grammar.belr
+%{_datadir}/belr/grammars/mwi_grammar.belr
 %{_datadir}/linphone
 %{_datadir}/sounds/linphone
 
