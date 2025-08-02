@@ -10,7 +10,7 @@ Summary:	Linphone Internet Phone libraries
 Summary(pl.UTF-8):	Biblioteki telefonu internetowego Linphone
 Name:		liblinphone
 Version:	5.4.17
-Release:	3
+Release:	4
 License:	AGPL v3+ or proprietary
 Group:		Applications/Communications
 #Source0Download: https://gitlab.linphone.org/BC/public/liblinphone/-/tags
@@ -19,6 +19,7 @@ Source0:	https://gitlab.linphone.org/BC/public/liblinphone/-/archive/%{version}/
 Patch0:		%{name}-wrappers.patch
 Patch1:		%{name}-jsoncpp.patch
 Patch2:		%{name}-soci.patch
+Patch3:		build.patch
 Patch4:		%{name}-zxing.patch
 URL:		https://www.linphone.org/technical-corner/liblinphone
 # base and tester components
@@ -208,6 +209,7 @@ pochodzącego z GNOME.
 %patch -P 0 -p1
 %patch -P 1 -p1
 %patch -P 2 -p1
+%patch -P 3 -p1
 %patch -P 4 -p1
 
 %build
